@@ -216,3 +216,4 @@ db.sqlite3
 
 plugins/*/
 .idea
+*.DS_Store
