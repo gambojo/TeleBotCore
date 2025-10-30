@@ -3,26 +3,71 @@ from core.config import ConfigManager
 from databases import DatabaseManager
 from core.plugins.base import PluginBase
 from core.logging import LoggingManager
+import inspect
+import os
 
 
 class PluginRegistry:
     """
-    Реестр для управления регистрацией и хранением плагинов
-    Параметры: не принимает параметров при создании
-    Возвращает: экземпляр PluginRegistry
-    Пример: registry = PluginRegistry()
+    Реестр для управления регистрацией и хранением плагинов (синглтон)
     """
 
-    def __init__(self):
-        self._plugins: Dict[str, Callable[[ConfigManager, DatabaseManager], PluginBase]] = {}
-        self.logger = LoggingManager().get_logger(__name__)
+    _instance = None
 
-    def register(self, directory_name: str, factory: Callable[[ConfigManager, DatabaseManager], PluginBase]) -> None:
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        if not hasattr(self, '_initialized'):
+            self._plugins: Dict[str, Callable[[ConfigManager, DatabaseManager], PluginBase]] = {}
+            self.logger = LoggingManager().get_logger(__name__)
+            self._initialized = True
+
+    def register(self, factory: Callable[[ConfigManager, DatabaseManager], PluginBase]) -> None:
         """
-        Регистрирует фабрику плагина по имени директории
+        Регистрирует фабрику плагина (автоматически определяет имя из директории)
+        Параметры: factory - фабричная функция
+        Возвращает: None
+        Пример: registry.register(lambda config, db: Plugin(config, db))
+        """
+        # Автоматически определяем имя плагина из директории фабричной функции
+        plugin_dir_name = self._get_plugin_directory_name(factory)
+
+        if plugin_dir_name in self._plugins:
+            self.logger.warning(f"Plugin '{plugin_dir_name}' is already registered, overwriting")
+
+        self._plugins[plugin_dir_name] = factory
+        self.logger.info(f"Plugin '{plugin_dir_name}' registered successfully")
+
+    def _get_plugin_directory_name(self, factory: Callable) -> str:
+        """Автоматически определяет имя директории плагина из фабричной функции"""
+        try:
+            # Получаем файл, где определена фабричная функция
+            factory_file = inspect.getfile(factory)
+
+            # Ищем папку plugins в пути и берем следующую папку
+            path_parts = os.path.normpath(factory_file).split(os.sep)
+
+            if 'plugins' in path_parts:
+                plugins_index = path_parts.index('plugins')
+                if plugins_index + 1 < len(path_parts):
+                    return path_parts[plugins_index + 1]
+
+            # Если не нашли, используем имя модуля как fallback
+            return factory.__module__.split('.')[1] if '.' in factory.__module__ else 'unknown'
+
+        except (TypeError, IndexError) as e:
+            self.logger.warning(f"Could not determine plugin directory name: {e}")
+            return 'unknown'
+
+    def register_with_name(self, directory_name: str,
+                           factory: Callable[[ConfigManager, DatabaseManager], PluginBase]) -> None:
+        """
+        Регистрирует фабрику плагина с явным указанием имени (для обратной совместимости)
         Параметры: directory_name - имя папки плагина, factory - фабричная функция
         Возвращает: None
-        Пример: registry.register('vpn', lambda config, db: VPNManager(config, db))
         """
         if directory_name in self._plugins:
             self.logger.warning(f"Plugin '{directory_name}' is already registered, overwriting")
@@ -96,14 +141,3 @@ class PluginRegistry:
         Пример: registry.count() -> 2
         """
         return len(self._plugins)
-
-
-# Глобальный экземпляр для обратной совместимости
-_global_registry = PluginRegistry()
-
-# Функции для обратной совместимости
-def register_plugin(directory_name: str, factory: Callable[[ConfigManager, DatabaseManager], PluginBase]):
-    _global_registry.register_plugin(directory_name, factory)
-
-def get_registered_plugins() -> Dict[str, Callable[[ConfigManager, DatabaseManager], PluginBase]]:
-    return _global_registry.get_registered_plugins()

@@ -1,7 +1,7 @@
 import importlib
 from core.config import ConfigManager
 from databases import DatabaseManager
-from core.plugins.global_registry import plugin_registry  # Используем глобальный реестр
+from core.plugins.global_registry import plugin_registry
 from core.plugins.base import PluginBase
 from core.logging import LoggingManager
 
@@ -14,7 +14,7 @@ class PluginManager:
     def __init__(self, config_manager: ConfigManager, db: DatabaseManager):
         self.config_manager = config_manager
         self.db = db
-        self.registry = plugin_registry  # Используем глобальный реестр
+        self.registry = plugin_registry
         self.logger = LoggingManager().get_logger(__name__)
 
     def load_all(self) -> dict[str, PluginBase]:
@@ -28,7 +28,6 @@ class PluginManager:
 
         for plugin_dir_name, factory in factories.items():
             try:
-                # Проверяем enabled статус ДО создания экземпляра плагина
                 try:
                     config_module = importlib.import_module(f"plugins.{plugin_dir_name}.config")
                     enabled = getattr(config_module, 'ENABLED', True)
@@ -39,7 +38,6 @@ class PluginManager:
                     self.logger.info(f"Plugin {plugin_dir_name.upper()} disabled via config.ENABLED")
                     continue
 
-                # Создаем экземпляр плагина только если он enabled
                 plugin = factory(self.config_manager, self.db)
                 plugin_name = plugin.get_name()
 
