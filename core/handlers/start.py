@@ -1,7 +1,7 @@
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import CommandStart
-from core.keyboards.main_menu_keyboard import MainMenuKeyboard
+from core.keyboards import MainMenuKeyboard
 from core.display import ImageManager, HTMLBuilder
 from databases import DatabaseManager, UserManager
 from core.config import ConfigManager
@@ -31,7 +31,6 @@ class StartHandler:
     async def _render_main_menu(self, message: Message):
         """Отображает главное меню с пользователем и плагинами"""
         try:
-            # Создаем UserManager здесь, а не в конструкторе
             user_manager = UserManager()
             user, _ = await user_manager.ensure(
                 telegram_id=message.from_user.id,

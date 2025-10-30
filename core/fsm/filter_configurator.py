@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
-from core.keyboards.keyboard_builder_base import KeyboardBuilderBase
+from core.keyboards import KeyboardBuilderBase
 from core.display.html_builder import HTMLBuilder
 from .registry import FilterFSM
 
@@ -52,10 +52,7 @@ class FilterConfigurator:
     async def handle_role_input(self, message: Message, state: FSMContext):
         """Обрабатывает ввод роли для RoleFilter"""
         role = message.text.strip()
-
-        # Сохраняем конфигурацию в состоянии
         await state.update_data(configured_role=role)
-
         text = (HTMLBuilder()
                 .title("RoleFilter настроен", "✅")
                 .field("Роль", role)

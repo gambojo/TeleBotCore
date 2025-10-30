@@ -33,8 +33,6 @@ class FilterFSM(StatesGroup):
     configuring_role_filter = State()
     configuring_permission_filter = State()
     configuring_group_filter = State()
-
-    # Состояния для динамической настройки
     awaiting_role_input = State()
     awaiting_permission_flags = State()
     awaiting_chat_ids = State()

@@ -1,6 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from core.plugins.base import PluginBase
-from core.config.base_config import CoreSettings
 from core.config import ConfigManager
 from .keyboard_builder_base import KeyboardBuilderBase
 

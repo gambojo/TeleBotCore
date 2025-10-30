@@ -2,7 +2,7 @@ from aiogram import Router
 from aiogram.types import CallbackQuery
 from databases import DatabaseManager, UserManager
 from core.display import ImageManager, HTMLBuilder
-from core.keyboards.main_menu_keyboard import MainMenuKeyboard
+from core.keyboards import MainMenuKeyboard
 from core.plugins import PluginBase
 
 router = Router()

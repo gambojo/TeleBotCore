@@ -14,7 +14,6 @@ class UserInitMiddleware(BaseMiddleware):
     async def __call__(self, handler, event: TelegramObject, data: dict):
         if isinstance(event, Message) and event.from_user:
             try:
-                # Создаем UserManager для каждого запроса
                 user_manager = UserManager()
                 user, _ = await user_manager.ensure(
                     telegram_id=event.from_user.id,

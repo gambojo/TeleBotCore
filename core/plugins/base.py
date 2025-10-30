@@ -46,9 +46,7 @@ class PluginBase(ABC):
 
     def get_name(self) -> str:
         """Возвращает: str - имя плагина в верхнем регистре"""
-        # Получаем путь к файлу класса плагина
         plugin_file = inspect.getfile(self.__class__)
-        # Получаем имя родительской директории (папки плагина)
         plugin_dir = os.path.basename(os.path.dirname(plugin_file))
         return plugin_dir.upper()
 

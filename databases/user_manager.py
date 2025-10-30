@@ -22,7 +22,6 @@ class UserManager:
         self.db = DatabaseManager()
 
     async def _get_session(self) -> AsyncSession:
-        # Используем create_session() вместо get_session()
         return self.db.create_session()
 
     async def _handle_db_error(self, error: Exception, operation: str) -> None:
@@ -143,7 +142,6 @@ class UserManager:
                 user = result.scalar_one_or_none()
 
                 if user:
-                    # Обновляем существующего пользователя
                     updated = False
                     if username is not None and user.username != username:
                         user.username = username
@@ -155,7 +153,6 @@ class UserManager:
                         user.last_name = last_name
                         updated = True
 
-                    # Всегда проверяем роль
                     current_role = determine_role(telegram_id)
                     if user.role != current_role:
                         user.role = current_role
@@ -171,7 +168,6 @@ class UserManager:
 
                     return user, False
 
-                # Создаем нового пользователя
                 current_role = determine_role(telegram_id)
                 new_user = User(
                     telegram_id=telegram_id,

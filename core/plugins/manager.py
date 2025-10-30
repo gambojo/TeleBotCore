@@ -26,16 +26,11 @@ class PluginManager:
 
         for plugin_dir_name, factory in factories.items():
             try:
-                # Создаем экземпляр плагина
                 plugin = factory(self.config_manager, self.db)
                 plugin_name = plugin.get_name()
 
-                # Получаем настройки плагина
                 settings = plugin.get_settings()
-
-                # ПРОВЕРЯЕМ enabled статус из МОДУЛЯ config.py плагина
                 try:
-                    # Импортируем модуль config плагина напрямую
                     config_module = importlib.import_module(f"plugins.{plugin_dir_name}.config")
                     enabled = getattr(config_module, 'ENABLED', True)
                 except (ModuleNotFoundError, ImportError) as e:
@@ -65,7 +60,6 @@ class PluginManager:
             importlib.import_module(f"plugins.{plugin_name}.models")
             logger.debug(f"Plugin database models registered: {plugin_name}")
         except ModuleNotFoundError:
-            # Это нормально - не у всех плагинов есть модели
             pass
         except Exception as e:
             logger.error(f"Failed to register plugin models '{plugin_name}': {e}")
