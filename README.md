@@ -79,8 +79,8 @@ TeleBotCore/
 └── main.py                 # Точка входа
 ```
 
-## Создание плагина
-### 1. Структура плагина
+## Документация
+#### 1. Структура плагина
 ```
 plugins/
 └── my_plugin/
@@ -94,7 +94,7 @@ plugins/
     └── fsm.py          # Состояния (опционально)
 ```
 
-### 2. Пример плагина
+#### 2. Пример плагина
 `plugins/my_plugin/config.py`
 ```python
 from pydantic_settings import BaseSettings
@@ -151,8 +151,8 @@ from core.plugins.registry import register_plugin
 register_plugin("my_plugin", lambda config, db: Plugin(config, db))
 ```
 
-## Конфигурация
-### Основные настройки (.env)
+### Конфигурация
+#### Основные настройки (.env)
 ```dotenv
 # Обязательные
 BOT_TOKEN=your_bot_token
@@ -164,13 +164,13 @@ SUPPORT=username_support_bot
 PLUGINS_DISPLAY_MODE=integrated  # integrated|entry|smart
 ```
 
-## Режимы отображения плагинов
+### Режимы отображения плагинов
 * `integrated` - кнопки плагинов в главном меню
 * `entry` - одна кнопка входа в каждый плагин
 * `smart` - автоматический выбор на основе количества кнопок
 
-## API разработчика
-### Фильтры доступа
+### API разработчика
+#### Фильтры доступа
 ```python
 from core.filters import RoleFilter, PermissionFilter
 
@@ -183,7 +183,7 @@ async def moderator_command(message: Message):
     await message.answer("Модератор команда")
 ```
 
-### Работа с БД
+#### Работа с БД
 ```python
 from databases import UserManager
 
@@ -194,7 +194,7 @@ user, created = await user_manager.ensure(
 )
 ```
 
-### FSM состояния
+#### FSM состояния
 ```python
 from aiogram.fsm.context import FSMContext
 from core.fsm.registry import UserFSM
@@ -206,7 +206,7 @@ async def handle_email(message: Message, state: FSMContext):
     await message.answer("Email сохранен!")
 ```
 
-## Разработка
+### Разработка
 ```bash
 git clone https://github.com/gambojo/TeleBotCore.git
 cd TeleBotCore
@@ -216,7 +216,7 @@ source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
-### Создание нового плагина
+#### Создание нового плагина
 ...
 
 ## Лицензия
