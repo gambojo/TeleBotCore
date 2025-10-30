@@ -1,5 +1,5 @@
 import asyncio
-from core.bot import BotApp
+from core import BotApp
 
 async def main():
     bot = BotApp()

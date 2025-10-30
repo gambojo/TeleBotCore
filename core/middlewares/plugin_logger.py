@@ -1,8 +1,7 @@
 from aiogram import BaseMiddleware
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
-from core.bot.logging import get_plugin_logger
-
+from core.logging import LoggingManager
 
 class PluginLoggerMiddleware(BaseMiddleware):
     """
@@ -13,7 +12,8 @@ class PluginLoggerMiddleware(BaseMiddleware):
     """
 
     def __init__(self, plugin_name: str = "UnknownPlugin"):
-        self.logger = get_plugin_logger(plugin_name)
+        self.logger_manager = LoggingManager()
+        self.logger = self.logger_manager.get_plugin_logger(plugin_name)
 
     async def __call__(self, handler, event, data):
         user_id = getattr(event.from_user, "id", "unknown")

@@ -1,14 +1,29 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
-router = Router(name="fallback")
 
-@router.callback_query()
-async def unhandled_callback(callback: CallbackQuery):
+class FallbackHandler:
     """
     Обработчик для необработанных callback-запросов
-    Параметры: callback - callback-запрос
-    Возвращает: None
-    Пример: автоматически вызывается для неизвестных callback_data
     """
-    await callback.answer(f"Необработанный callback: {callback.data}", show_alert=True)
+
+    def __init__(self):
+        self.router = Router(name="fallback")
+        self._register_handlers()
+
+    def _register_handlers(self):
+        """Приватный метод для регистрации хендлеров в роутере"""
+        self.router.callback_query.register(self.unhandled_callback)
+
+    def get_router(self) -> Router:
+        """Возвращает готовый роутер с зарегистрированными хендлерами"""
+        return self.router
+
+    async def unhandled_callback(self, callback: CallbackQuery):
+        """Обработчик для необработанных callback-запросов"""
+        await callback.answer(f"Необработанный callback: {callback.data}", show_alert=True)
+
+
+# Для обратной совместимости
+fallback_handler = FallbackHandler()
+router = fallback_handler.get_router()

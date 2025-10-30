@@ -1,6 +1,7 @@
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import Message, TelegramObject
 from databases import UserManager
+from core.logging import LoggingManager
 
 
 class UserInitMiddleware(BaseMiddleware):
@@ -10,6 +11,7 @@ class UserInitMiddleware(BaseMiddleware):
 
     def __init__(self):
         super().__init__()
+        self.logger = LoggingManager().get_logger(__name__)
 
     async def __call__(self, handler, event: TelegramObject, data: dict):
         if isinstance(event, Message) and event.from_user:
@@ -23,8 +25,7 @@ class UserInitMiddleware(BaseMiddleware):
                 )
                 data["user"] = user
             except Exception as e:
-                from core.bot.logging import logger
-                logger.error(f"Error in UserInitMiddleware: {e}")
+                self.logger.error(f"Error in UserInitMiddleware: {e}")
                 data["user"] = None
 
         return await handler(event, data)

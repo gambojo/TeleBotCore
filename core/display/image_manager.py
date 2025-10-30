@@ -1,6 +1,6 @@
 import os
 from aiogram.types import FSInputFile
-from core.bot.logging import logger
+from core.logging import LoggingManager
 
 
 class ImageManager:
@@ -16,6 +16,7 @@ class ImageManager:
         self.cache: dict[str, FSInputFile] = {}
         self.local = {"banner": "core/display/images/telefather.jpg"}
         self.cdn = {"banner": "https://cdn.example.com/banner.jpg"}
+        self.logger = LoggingManager().get_logger(__name__)
 
     def get_banner(self, plugin: str | None = None) -> FSInputFile | str:
         """
@@ -29,7 +30,7 @@ class ImageManager:
                 plugin_path = f"assets/images/banner_{plugin}.jpg"
                 if os.path.exists(plugin_path):
                     return self._get_file(plugin_path)
-                logger.info(f"[ImageManager] Fallback to default banner for plugin '{plugin}'")
+                self.logger.info(f"[ImageManager] Fallback to default banner for plugin '{plugin}'")
             return self._get_file(self.local["banner"])
 
         if plugin:
@@ -40,7 +41,7 @@ class ImageManager:
         if path in self.cache:
             return self.cache[path]
         if not os.path.exists(path):
-            logger.warning(f"[ImageManager] Missing image: {path}")
+            self.logger.warning(f"[ImageManager] Missing image: {path}")
             return "—"
         file = FSInputFile(path)
         self.cache[path] = file

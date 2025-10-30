@@ -1,23 +1,32 @@
-import importlib
-import pkgutil
 import os
+import importlib
+from core.logging import LoggingManager
 
-_loaded_plugins = []
+logger = LoggingManager().get_logger(__name__)
 
-def auto_import_plugins():
-    """
-    Автоматически импортирует все плагины из папки plugins
-    Возвращает: None
-    Пример: вызывается автоматически при импорте модуля
-    """
+
+def auto_register_plugins():
+    """Автоматически регистрирует все плагины из папки plugins"""
     plugins_dir = os.path.dirname(__file__)
 
-    for _, plugin_name, is_pkg in pkgutil.iter_modules([plugins_dir]):
-        if is_pkg and not plugin_name.startswith('_'):
-            try:
-                importlib.import_module(f'plugins.{plugin_name}')
-                _loaded_plugins.append((plugin_name, True, None))
-            except ImportError as e:
-                _loaded_plugins.append((plugin_name, False, str(e)))
+    logger.info(f"Scanning plugins directory: {plugins_dir}")
 
-auto_import_plugins()
+    for item in os.listdir(plugins_dir):
+        plugin_path = os.path.join(plugins_dir, item)
+
+        if (os.path.isdir(plugin_path) and
+                not item.startswith('_') and
+                not item.startswith('.')):
+
+            plugin_init = os.path.join(plugin_path, "__init__.py")
+            if os.path.exists(plugin_init):
+                try:
+                    # Импортируем модуль плагина
+                    plugin_module = importlib.import_module(f"plugins.{item}")
+                    logger.info(f"Successfully imported plugin: {item}")
+                except Exception as e:
+                    logger.error(f"Failed to import plugin {item}: {e}")
+
+
+# Автоматически регистрируем при импорте
+auto_register_plugins()

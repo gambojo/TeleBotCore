@@ -33,8 +33,7 @@ class FilterConfigurator:
         keyboard = (KeyboardBuilderBase()
                     .add_button("Настроить RoleFilter", "configure_role_filter")
                     .add_button("Настроить PermissionFilter", "configure_permission_filter")
-                    .add_button("Настроить GroupFilter", "configure_group_filter")
-                    .add_cancel())
+                    .add_button("Настроить GroupFilter", "configure_group_filter"))
 
         await message.answer(text, reply_markup=keyboard.build_markup())
         await state.set_state(FilterFSM.configuring_role_filter)
@@ -44,7 +43,7 @@ class FilterConfigurator:
         text = HTMLBuilder().title("Настройка RoleFilter", "👥").note(
             "Введите требуемую роль (например: admin, user, moderator)").build()
 
-        keyboard = KeyboardBuilderBase().add_cancel()
+        keyboard = KeyboardBuilderBase().add_core_buttons()
 
         await callback.message.edit_text(text, reply_markup=keyboard.build_markup())
         await state.set_state(FilterFSM.awaiting_role_input)

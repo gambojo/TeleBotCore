@@ -1,7 +1,7 @@
 from sqlalchemy import select, exc
 from sqlalchemy.ext.asyncio import AsyncSession
-from core.bot.auth import determine_role
-from core.bot.logging import logger
+from core.auth import AuthManager
+from core.logging import LoggingManager
 from .models import User
 from .database_manager import DatabaseManager
 from .exceptions import (
@@ -20,13 +20,15 @@ class UserManager:
 
     def __init__(self):
         self.db = DatabaseManager()
+        self.auth_manager = AuthManager()
+        self.logger = LoggingManager().get_logger(__name__)
 
     async def _get_session(self) -> AsyncSession:
         return self.db.create_session()
 
     async def _handle_db_error(self, error: Exception, operation: str) -> None:
         """Обрабатывает ошибки базы данных и логирует их"""
-        logger.error(f"Database error in {operation}: {error}")
+        self.logger.error(f"Database error in {operation}: {error}")
 
         if isinstance(error, exc.IntegrityError):
             if "unique constraint" in str(error).lower():
@@ -50,7 +52,7 @@ class UserManager:
                 user = result.scalar_one_or_none()
 
                 if not user:
-                    logger.debug(f"User not found: telegram_id={telegram_id}")
+                    self.logger.debug(f"User not found: telegram_id={telegram_id}")
 
                 return user
 
@@ -79,7 +81,7 @@ class UserManager:
                 await session.commit()
                 await session.refresh(user)
 
-                logger.info(f"User created: telegram_id={telegram_id}, username={username}")
+                self.logger.info(f"User created: telegram_id={telegram_id}, username={username}")
                 return user
 
         except Exception as e:
@@ -153,7 +155,7 @@ class UserManager:
                         user.last_name = last_name
                         updated = True
 
-                    current_role = determine_role(telegram_id)
+                    current_role = self.auth_manager.determine_role(telegram_id)
                     if user.role != current_role:
                         user.role = current_role
                         user.is_admin = current_role == "admin"
@@ -162,13 +164,13 @@ class UserManager:
                     if updated:
                         await session.commit()
                         await session.refresh(user)
-                        logger.debug(f"User ensured (updated): telegram_id={telegram_id}")
+                        self.logger.debug(f"User ensured (updated): telegram_id={telegram_id}")
                     else:
-                        logger.debug(f"User ensured (no changes): telegram_id={telegram_id}")
+                        self.logger.debug(f"User ensured (no changes): telegram_id={telegram_id}")
 
                     return user, False
 
-                current_role = determine_role(telegram_id)
+                current_role = self.auth_manager.determine_role(telegram_id)
                 new_user = User(
                     telegram_id=telegram_id,
                     username=username,
@@ -181,7 +183,7 @@ class UserManager:
                 await session.commit()
                 await session.refresh(new_user)
 
-                logger.info(f"User ensured (new): telegram_id={telegram_id}")
+                self.logger.info(f"User ensured (new): telegram_id={telegram_id}")
                 return new_user, True
 
         except Exception as e:
@@ -200,13 +202,13 @@ class UserManager:
                 )
                 user = result.scalar_one_or_none()
                 if not user:
-                    logger.warning(f"User not found for deletion: telegram_id={telegram_id}")
+                    self.logger.warning(f"User not found for deletion: telegram_id={telegram_id}")
                     return False
 
                 await session.delete(user)
                 await session.commit()
 
-                logger.info(f"User deleted: telegram_id={telegram_id}")
+                self.logger.info(f"User deleted: telegram_id={telegram_id}")
                 return True
 
         except Exception as e:
