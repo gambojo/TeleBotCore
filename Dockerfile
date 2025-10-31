@@ -4,7 +4,6 @@ ARG USERNAME=bot
 ARG GROUPNAME=bot
 ARG DATADIR=data
 ARG WORKDIR=/app
-ARG MAINFILE=main.py
 
 LABEL author="github.com/gambojo"
 LABEL version=1.0.0
@@ -28,4 +27,4 @@ RUN mkdir -p $DATADIR && \
     chown -R $USERNAME:$GROUPNAME $WORKDIR
 
 USER $USERNAME
-CMD ["python", "$MAINFILE"]
+CMD ["python", "main.py"]

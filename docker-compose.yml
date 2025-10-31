@@ -1,48 +1,38 @@
-networks:
-  bot_network:
-    driver: bridge
-
 services:
   bot:
-    build: .
+    image: gambojo/telebotcore:latest
     container_name: bot
-    env_file:
-      - .env
+    environment:
+      BOT_TOKEN: "bot's telegram token"
+      ADMIN_IDS: "<telegram id's>"
+      SUPPORT: "<support's telegram username"
     restart: unless-stopped
-    networks:
-      - bot_network
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
+    volumes:
+      - ./plugins:/app/plugins
+    depends_on:
+      plugin-downloader:
+        condition: service_completed_successfully
 
-#  adminer:
-#    image: adminer
-#    container_name: bot_adminer
-#    ports:
-#      - "48080:8080"
-#    networks:
-#      - bot_network
-#    depends_on:
-#      - postgres
-#
-#  postgres:
-#    image: postgres:15
-#    container_name: bot_postgres
-#    env_file:
-#      - .env
-#    ports:
-#      - "45432:5432"
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
-#      - ./databases/init/postgres-init.sql:/docker-entrypoint-initdb.d/01-init.sql
-#    networks:
-#      - bot_network
-#    healthcheck:
-#      test: ["CMD-SHELL", "pg_isready -d proxy_bot_db -U proxy_bot_user"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
-#
-#volumes:
-#  postgres_data:
-#    driver: local
+  plugin-downloader:
+    image: alpine:latest
+    container_name: plugin-downloader
+    working_dir: /app/plugins
+    environment:
+      PLUGIN_URLS: "https://github.com/gambojo/TeleBotPlugin.git" # example "https://plgn1.git,https://plgn2.git,.."
+    command:
+      - sh
+      - -c
+      - |
+        apk add --no-cache git
+        echo "Downloading plugins..."
+        OLD_IFS=$$IFS
+        IFS=','
+        for url in $$PLUGIN_URLS; do
+            echo "Downloading: $$url"
+            git clone "$$url"
+        done
+        IFS=$$OLD_IFS
+        echo "All plugins downloaded!"
+    restart: "no"
+    volumes:
+      - ./plugins:/app/plugins
