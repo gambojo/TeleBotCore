@@ -214,10 +214,34 @@ BotApp ← PluginManager ← PluginRegistry ← Plugins (Shop, VPN, ...)
 ```
 
 ## Документация
-### Ядро
-...
+### Контрактные обязательства:
+#### Для ядра:
+- Предоставляет ConfigManager и DatabaseManager
+- Обеспечивает доступ к PluginRegistry
+- Загружает конфигурацию плагина через load_plugin_config()
+- Интегрирует роутеры плагинов в диспетчер
+- Управляет отображением кнопок плагинов
 
-### Плагины
+#### Для плагина:
+- Наследует от PluginBase
+- Реализует 5 абстрактных методов
+- Регистрируется в PluginRegistry через фабрику
+- Использует PluginSettings для конфигурации
+- Следует соглашениям именования callback данных
+
+### Поток взаимодействия ядро ↔ плагин:
+```text
+1. ЯДРО: BotApp инициализирует PluginManager
+2. ЯДРО: PluginManager сканирует PluginRegistry
+3. ПЛАГИН: Авторегистрация через __init__.py
+4. ЯДРО: PluginManager вызывает фабрику плагина
+5. ПЛАГИН: Создается экземпляр Plugin(config, db)
+6. ЯДРО: Получает роутер через get_router()
+7. ЯДРО: Получает кнопки через get_integrated_buttons()/get_entry_button()
+8. ЯДРО: Интегрирует плагин в главное меню
+```
+
+### Подробнее о планах
 * [Шаблон плагина - TeleBotPlugin](https://github.com/gambojo/TeleBotPlugin.git)
 * [Документация](https://github.com/gambojo/TeleBotPlugin.git#readme)
 
