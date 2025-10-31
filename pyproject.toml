@@ -1,6 +1,6 @@
 [project]
 name = "telebotcore"
-version = "1.0.0"
+version = "1.0.1"
 description = "Modular Telegram Bot Template"
 authors = [
     {name = "Agamov Gamid", email = "gamaefremov@gmail.com"},
