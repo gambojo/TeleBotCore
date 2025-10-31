@@ -1,0 +1,48 @@
+# Системные файлы
+*.git/
+*.gitignore
+*.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.temp
+.cache/
+
+# Файлы окружения (кроме .env)
+.env
+.env.local
+.env.production
+.env.development
+
+# Документация
+README.md
+CHANGELOG.md
+LICENSE
+docs/
+
+# Файлы IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Резервные копии
+*.bak
+*.backup
+
+# Файлы ОС
+*__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Тесты и спецификации
+test/
+tests/
+spec/
+coverage/
+
+plugins/*/
