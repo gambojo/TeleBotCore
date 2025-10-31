@@ -1,6 +1,6 @@
 # TeleBotCore
 
-# TeleBotCore - Modular Telegram Bot Template
+## TeleBotCore - Modular Telegram Bot Template
 
 <div align="center">
 
