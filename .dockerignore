@@ -46,3 +46,4 @@ spec/
 coverage/
 
 plugins/*/
+*db.sqlite3*
