@@ -11,7 +11,7 @@
 
 **Модульный шаблон для создания Telegram ботов с системой плагинов**
 
-[Особенности](#Особенности) • [Быстрый старт](#быстрый-старт) • [Архитектура](#архитектура) • [Документация](#документация)
+[Особенности](#Особенности) • [Быстрый старт](#быстрый-старт) • [Архитектура](#архитектура) • [Документация](#документация) • [Лицензия](#лицензия) • [Авторы](#авторы)
 
 </div>
 
@@ -41,7 +41,21 @@
 ```bash
 git clone https://github.com/yourname/TeleBotCore.git
 cd TeleBotCore
-pip install -r requirements.txt
+
+# Базовая установка
+pip install .
+
+# С SQLite (по умолчанию)
+pip install ".[sqlite]"
+
+# С PostgreSQL  
+pip install ".[postgres]"
+
+# Для разработки
+pip install ".[dev]"
+
+# Всё сразу
+pip install ".[sqlite,dev]"
 ````
 
 ### 2. Настройка
@@ -58,154 +72,6 @@ PLUGINS_DISPLAY_MODE=integrated
 python main.py
 ```
 
-## Архитектура
-```
-TeleBotCore/
-├── core/                   # Ядро системы
-│   ├── bot/                # Основной класс бота
-│   ├── config/             # Менеджер конфигурации
-│   ├── plugins/            # Система плагинов
-│   ├── filters/            # Фильтры для хендлеров
-│   ├── middlewares/        # Промежуточное ПО
-│   ├── keyboards/          # Построители клавиатур
-│   ├── display/            # HTML и изображения
-│   └── handlers/           # Базовые обработчики
-├── databases/              # Работа с БД
-│   ├── models.py           # Базовые модели
-│   ├── user_manager.py     # Управление пользователями
-│   └── database_manager.py # Управление сессией
-├── plugins/                # Плагины
-│   └── __init__.py         # Автоимпорт плагиноа
-└── main.py                 # Точка входа
-```
-
-## Документация
-#### 1. Структура плагина
-```
-plugins/
-└── my_plugin/
-    ├── __init__.py     # Регистрация плагина
-    ├── config.py       # Настройки плагина
-    ├── plugin.py       # Основной класс плагина
-    ├── handlers.py     # Обработчики
-    ├── keyboards.py    # Клавиатуры
-    ├── models.py       # Модели БД (опционально)
-    ├── services.py     # Бизнес-логика
-    └── fsm.py          # Состояния (опционально)
-```
-
-#### 2. Пример плагина
-`plugins/my_plugin/config.py`
-```python
-from pydantic_settings import BaseSettings
-
-# Включить/выключить плагин
-ENABLED: bool = True
-
-class PluginSettings(BaseSettings):
-    API_KEY: str = "default_key"
-    MAX_USERS: int = 100
-    
-    model_config = {"env_file": ".env", "env_prefix": "MYPLUGIN_"}
-```
-
-`plugins/my_plugin/plugin.py`
-```python
-from core.plugins.base import PluginBase
-from core.config import ConfigManager
-from aiogram import Router
-from aiogram.types import InlineKeyboardButton
-from databases import DatabaseManager
-from .config import PluginSettings
-from .handlers import PluginHandlers
-
-class Plugin(PluginBase):
-    def __init__(self, config: ConfigManager, db: DatabaseManager):
-        self.config = config
-        self.db = db
-        self.settings = config.load_plugin_config(self.get_name(), PluginSettings)
-
-    def get_router(self) -> Router:
-        router = Router(name=self.get_name())
-        PluginHandlers(self.settings, self.get_name(), self.db).register(router)
-        return router
-
-    def get_integrated_buttons(self):
-        return [[InlineKeyboardButton(text="Мой плагин", callback_data="myplugin:main")]]
-
-    def get_entry_button(self):
-        return [[InlineKeyboardButton(text="📱 Мой плагин", callback_data="plugin:MYPLUGIN")]]
-
-    def get_config(self):
-        return PluginSettings
-
-    def get_settings(self):
-        return self.settings
-```
-
-`plugins/my_plugin/__init__.py`
-```python
-from .plugin import Plugin
-from core.plugins.registry import register_plugin
-
-register_plugin("my_plugin", lambda config, db: Plugin(config, db))
-```
-
-### Конфигурация
-#### Основные настройки (.env)
-```dotenv
-# Обязательные
-BOT_TOKEN=your_bot_token
-ADMIN_IDS=[123456,789012]
-
-# Опциональные
-DATABASE_URL=sqlite+aiosqlite:///db.sqlite3
-SUPPORT=username_support_bot
-PLUGINS_DISPLAY_MODE=integrated  # integrated|entry|smart
-```
-
-### Режимы отображения плагинов
-* `integrated` - кнопки плагинов в главном меню
-* `entry` - одна кнопка входа в каждый плагин
-* `smart` - автоматический выбор на основе количества кнопок
-
-### API разработчика
-#### Фильтры доступа
-```python
-from core.filters import RoleFilter, PermissionFilter
-
-@router.message(RoleFilter(user_manager, "admin"))
-async def admin_command(message: Message):
-    await message.answer("Админ команда")
-
-@router.message(PermissionFilter(user_manager, is_admin=True))
-async def moderator_command(message: Message):
-    await message.answer("Модератор команда")
-```
-
-#### Работа с БД
-```python
-from databases import UserManager
-
-user_manager = UserManager()
-user, created = await user_manager.ensure(
-    telegram_id=message.from_user.id,
-    username=message.from_user.username
-)
-```
-
-#### FSM состояния
-```python
-from aiogram.fsm.context import FSMContext
-from core.fsm.registry import UserFSM
-
-@router.message(UserFSM.awaiting_email)
-async def handle_email(message: Message, state: FSMContext):
-    email = message.text
-    await state.update_data(email=email)
-    await message.answer("Email сохранен!")
-```
-
 ### Разработка
 ```bash
 git clone https://github.com/gambojo/TeleBotCore.git
@@ -216,11 +82,133 @@ source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
-#### Создание нового плагина
-...
+## Архитектура
+### Структура проекта
+```
+TeleBotCore/
+├── ЯДРО СИСТЕМЫ (core/)
+├── БАЗА ДАННЫХ (databases/) 
+├── ПЛАГИНЫ (plugins/)
+├── ТОЧКА ВХОДА (main.py)
+└── КОНФИГУРАЦИЯ (config files)
+```
+
+### CORE/ - Ядро системы
+#### Конфигурация (config/)
+````
+core/config/
+├── manager.py       # ConfigManager - единая точка управления настройками
+├── base_config.py   # CoreSettings - базовые настройки (Pydantic)
+└── __init__.py      # Экспорт компонентов
+````
+
+#### Аутентификация (auth/)
+```
+core/auth/
+├── auth.py          # AuthManager - система ролей и прав доступа
+└── __init__.py
+```
+
+#### Пользовательский интерфейс (display/)
+```
+core/display/
+├── html_builder.py     # HTMLBuilder - безопасное форматирование текста
+├── image_manager.py    # ImageManager - управление изображениями/баннерами
+└── images/             # Ресурсы изображений
+```
+
+#### Клавиатуры (keyboards/)
+```
+core/keyboards/
+├── keyboard_builder_base.py  # Базовый построитель клавиатур
+├── main_menu_keyboard.py     # MainMenuKeyboard - главное меню
+└── __init__.py
+```
+
+#### Безопасность и фильтры (filters/)
+```
+core/filters/
+├── base.py           # Базовые фильтры: RoleFilter, PermissionFilter, GroupFilter
+└── __init__.py
+```
+
+#### Промежуточное ПО (middlewares/)
+```
+core/middlewares/
+├── user_init.py        # UserInitMiddleware - инициализация пользователей
+├── plugin_logger.py    # PluginLoggerMiddleware - логирование плагинов
+└── __init__.py
+```
+
+#### Состояния (fsm/)
+```
+core/fsm/
+├── registry.py           # StatesGroup: ConfirmFSM, UserFSM, AdminFSM, PluginFSM
+├── filter_configurator.py # FilterConfigurator - настройка фильтров через FSM
+└── __init__.py
+```
+
+#### Обработчики (handlers/)
+```
+core/handlers/
+├── start.py        # StartHandler - команда /start и главное меню
+├── errors.py       # ErrorHandler - глобальная обработка ошибок  
+├── fallback.py     # FallbackHandler - необработанные callback'ы
+└── __init__.py
+```
+
+#### Логирование (logging/)
+```
+core/logging/
+├── logging.py      # LoggingManager + PluginLoggerAdapter
+└── __init__.py
+```
+
+#### Система плагинов (plugins/)
+```
+core/plugins/
+├── registry.py         # PluginRegistry - реестр плагинов
+├── global_registry.py  # Глобальный экземпляр реестра
+├── manager.py          # PluginManager - загрузка и управление плагинами
+├── base.py             # PluginBase - абстрактный базовый класс плагина
+└── __init__.py
+```
+
+### DATABASES/ - Работа с данными
+#### Модели и менеджеры
+```
+databases/
+├── models.py           # Базовые модели: User, UserMetrics
+├── user_manager.py     # UserManager - CRUD операции с пользователями
+├── database_manager.py # DatabaseManager - управление подключениями к БД
+├── exceptions.py       # Кастомные исключения БД
+└── __init__.py
+```
+
+### PLUGINS/ - Модульная система
+#### Базовая структура плагина
+```
+plugins/{plugin_name}/
+├── plugin.py           # Основной класс (наследует от PluginBase)
+├── config.py           # Настройки плагина (Pydantic)
+├── handlers.py         # Обработчики команд и callback'ов
+├── keyboards.py        # Клавиатуры плагина
+├── fsm.py              # Состояния FSM плагина
+├── models.py           # Модели данных (опционально)
+├── services/           # Бизнес-логика
+│   ├── service.py      # Базовый сервис
+│   └── *.py            # Модули сервиса
+├── __init__.py         # Регистрация плагина
+└── ...
+```
+
+### Разработка плагинов
+* [Шаблон плагина - TeleBotPlugin](https://github.com/gambojo/TeleBotPlugin.git)
+* [Документация](https://github.com/gambojo/TeleBotPlugin.git#readme)
+
 
 ## Лицензия
 Этот проект распространяется под лицензией MIT.
 
 ## Авторы
-* Агамов Гамид - https://github.com/gambojo
+* Агамов Гамид • [GitHub](https://github.com/gambojo) • [Telegram](https://t.me/gambo_jo)

@@ -11,6 +11,7 @@ from databases import DatabaseManager
 from core.logging import LoggingManager
 from core.auth import AuthManager
 import plugins as loaded_plugins
+from .version import version_manager
 
 
 class BotApp:
@@ -61,6 +62,8 @@ class BotApp:
         self.auth_manager = AuthManager(self.config)
         self.logger.info("AuthManager was loaded")
 
+        self.version_manager = version_manager
+
     async def run(self):
         """
         Запускает бота с правильным порядком загрузки роутеров
@@ -95,5 +98,5 @@ class BotApp:
         self.logger.info("FallbackRouter was loaded")
 
         # Polling
-        self.logger.info("Bot starting...")
+        self.logger.info(f"Bot {self.version_manager.title} v{self.version_manager.version} started successfull")
         await self.dp.start_polling(self.bot)
