@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 from core.plugins.base import PluginBase
 from core.config import ConfigManager
 from modules.databases import DatabaseManager
-from core.plugins.global_registry import plugin_registry
+from .registry import PluginRegistry
 from core.logging import LoggingManager
 import importlib
 
@@ -13,7 +13,7 @@ class PluginManager:
         self.config_manager = config_manager
         self.db = db
         self.dp = dp
-        self.registry = plugin_registry
+        self.registry = PluginRegistry()
         self.logger = LoggingManager().get_logger(__name__)
 
         # Храним состояние плагинов

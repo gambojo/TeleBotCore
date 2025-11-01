@@ -3,7 +3,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from core.config import ConfigManager
-from core.plugins import PluginManager, plugin_registry
+from core.plugins import PluginManager
 from core.middlewares import UserInitMiddleware
 from core.handlers.start import StartHandler
 from core.display import ImageManager
@@ -89,9 +89,6 @@ class BotApp:
 
         except Exception as e:
             self.logger.error(f"RBAC initialization failed: {e}")
-
-        # await self.auth_manager.rbac.initialize_system()
-        # self.logger.info("RBAC system initialized")
 
         # Middleware
         self.dp.message.middleware(UserInitMiddleware())

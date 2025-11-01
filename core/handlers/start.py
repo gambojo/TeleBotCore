@@ -41,7 +41,7 @@ class StartHandler:
             try:
                 await callback.message.delete()
             except:
-                pass  # Игнорируем ошибки удаления
+                pass
             await callback.answer()
 
         except Exception as e:

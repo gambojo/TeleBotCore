@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Boolean, Table, ForeignKey, DateTime, Text
 from datetime import datetime
 from modules.databases.database_manager import Base
+from sqlalchemy import (Column, Integer, String, Boolean,
+                        Table, ForeignKey, DateTime, Text)
 
 # Связующие таблицы
 user_roles = Table(
@@ -17,7 +18,6 @@ role_permissions = Table(
     Column('permission_id', Integer, ForeignKey('rbac_permissions.id'))
 )
 
-# Модели БЕЗ relationships
 class RBACRole(Base):
     __tablename__ = "rbac_roles"
     id = Column(Integer, primary_key=True)

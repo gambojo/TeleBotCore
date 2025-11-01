@@ -52,7 +52,7 @@ class SystemStats:
         try:
             total_users = await self.user_manager.get_user_count()
 
-            # ИСПРАВЛЕНИЕ: получаем статистику по ролям из RBAC вместо старого поля role
+            # Получаем статистику по ролям из RBAC
             users_by_role = await self._get_users_by_role_from_rbac()
 
             return {
@@ -172,8 +172,8 @@ class SystemStats:
         Статистика бота
         """
         try:
-            from core.version import VersionManager  # ИСПРАВЛЕНО: импортируем класс
-            version_manager = VersionManager()  # ИСПРАВЛЕНО: создаем экземпляр
+            from core.version import VersionManager
+            version_manager = VersionManager()
 
             return {
                 "version": version_manager.version,
