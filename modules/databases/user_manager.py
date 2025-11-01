@@ -1,4 +1,4 @@
-from sqlalchemy import select, exc
+from sqlalchemy import select, exc, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.auth import AuthManager
 from core.logging import LoggingManager
@@ -122,7 +122,7 @@ class UserManager:
                 if updated:
                     await session.commit()
                     await session.refresh(user)
-                    logger.info(f"User updated: telegram_id={telegram_id}")
+                    self.logger.info(f"User updated: telegram_id={telegram_id}")
 
                 return user
 
@@ -214,3 +214,49 @@ class UserManager:
         except Exception as e:
             await self._handle_db_error(e, "delete_user")
             return False
+
+    async def get_user_count(self) -> int:
+        """
+        Возвращает общее количество пользователей
+        """
+        session: AsyncSession = await self._get_session()
+        try:
+            async with session:
+                result = await session.execute(select(func.count(User.id)))
+                count = result.scalar()
+                return count or 0
+        except Exception as e:
+            await self._handle_db_error(e, "get_user_count")
+            return 0
+
+    async def get_users_by_role(self) -> dict:
+        """
+        Возвращает количество пользователей по ролям
+        """
+        session: AsyncSession = await self._get_session()
+        try:
+            async with session:
+                # Для старых пользователей (без RBAC) - используем поле role
+                result = await session.execute(
+                    select(User.role, func.count(User.id)).group_by(User.role)
+                )
+                role_stats = dict(result.all())
+
+                return role_stats
+        except Exception as e:
+            await self._handle_db_error(e, "get_users_by_role")
+            return {}
+
+    async def get_all_users(self) -> list:
+        """
+        Возвращает список всех пользователей
+        """
+        session: AsyncSession = await self._get_session()
+        try:
+            async with session:
+                result = await session.execute(select(User))
+                users = result.scalars().all()
+                return users
+        except Exception as e:
+            await self._handle_db_error(e, "get_all_users")
+            return []
