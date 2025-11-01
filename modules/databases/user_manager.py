@@ -133,7 +133,7 @@ class UserManager:
     async def ensure(self, telegram_id: int, username: str = None, first_name: str = None,
                      last_name: str = None) -> tuple[User, bool]:
         """
-        Создает пользователя если не существует, иначе обновляет
+        Создает пользователя если не существует, иначе обновляет - УПРОЩЕННАЯ ВЕРСИЯ
         """
         session: AsyncSession = await self._get_session()
         try:
@@ -144,6 +144,7 @@ class UserManager:
                 user = result.scalar_one_or_none()
 
                 if user:
+                    # Обновляем базовые данные
                     updated = False
                     if username is not None and user.username != username:
                         user.username = username
@@ -155,10 +156,10 @@ class UserManager:
                         user.last_name = last_name
                         updated = True
 
-                    current_role = self.auth_manager.determine_role(telegram_id)
-                    if user.role != current_role:
-                        user.role = current_role
-                        user.is_admin = current_role == "admin"
+                    # УБИРАЕМ вызов determine_role - роли теперь управляются через RBAC
+                    # Роль по умолчанию - "user", реальные роли берутся из RBAC
+                    if user.role != "user":
+                        user.role = "user"  # Устанавливаем базовую роль
                         updated = True
 
                     if updated:
@@ -170,14 +171,14 @@ class UserManager:
 
                     return user, False
 
-                current_role = self.auth_manager.determine_role(telegram_id)
+                # Создаем нового пользователя с базовой ролью
                 new_user = User(
                     telegram_id=telegram_id,
                     username=username,
                     first_name=first_name,
                     last_name=last_name,
-                    role=current_role,
-                    is_admin=current_role == "admin"
+                    role="user",  # Базовая роль
+                    is_admin=False  # Админство теперь через RBAC
                 )
                 session.add(new_user)
                 await session.commit()

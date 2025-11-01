@@ -37,3 +37,5 @@ class SystemPermissions:
         """Возвращает все системные разрешения"""
         return {value for key, value in cls.__dict__.items()
                 if isinstance(value, Permission)}
+
+

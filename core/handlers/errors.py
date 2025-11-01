@@ -1,4 +1,4 @@
-import logging
+from core.logging import LoggingManager
 import traceback
 from aiogram import Router
 from aiogram.types import ErrorEvent
@@ -10,7 +10,7 @@ class ErrorHandler:
     """
 
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
+        self.logger = LoggingManager().get_logger(__name__)
         self.router = Router(name="error_handler")
         self._register_handlers()
 
@@ -34,8 +34,3 @@ class ErrorHandler:
                 await msg.answer(str(exc))
             else:
                 await msg.answer("Произошла ошибка.")
-
-
-# Для обратной совместимости
-error_handler = ErrorHandler()
-router = error_handler.get_router()

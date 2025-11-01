@@ -14,6 +14,8 @@ class CoreSettings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///db.sqlite3"
     SUPPORT: str = "support"
     PLUGINS_DISPLAY_MODE: str = "integrated"
+    RBAC_ENABLED: bool = True
+    DEFAULT_ROLE: str = "user"
 
     model_config = SettingsConfigDict(
         env_file=".env",

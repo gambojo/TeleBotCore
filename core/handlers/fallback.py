@@ -22,8 +22,3 @@ class FallbackHandler:
     async def unhandled_callback(self, callback: CallbackQuery):
         """Обработчик для необработанных callback-запросов"""
         await callback.answer(f"Необработанный callback: {callback.data}", show_alert=True)
-
-
-# Для обратной совместимости
-fallback_handler = FallbackHandler()
-router = fallback_handler.get_router()

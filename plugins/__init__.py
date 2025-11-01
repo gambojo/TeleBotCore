@@ -6,9 +6,8 @@ logger = LoggingManager().get_logger(__name__)
 
 
 def auto_register_plugins():
-    """Автоматически регистрирует все плагины из папки plugins"""
+    """Автоматически регистрирует все плагины"""
     plugins_dir = os.path.dirname(__file__)
-
     logger.info(f"Scanning plugins directory: {plugins_dir}")
 
     for item in os.listdir(plugins_dir):
@@ -16,13 +15,14 @@ def auto_register_plugins():
 
         if (os.path.isdir(plugin_path) and
                 not item.startswith('_') and
-                not item.startswith('.')):
+                not item.startswith('.') and
+                item != '__pycache__'):
 
             plugin_init = os.path.join(plugin_path, "__init__.py")
             if os.path.exists(plugin_init):
                 try:
-                    # Импортируем модуль плагина
-                    plugin_module = importlib.import_module(f"plugins.{item}")
+                    # Просто импортируем плагин - регистрация произойдет автоматически
+                    importlib.import_module(f"plugins.{item}")
                     logger.info(f"Successfully imported plugin: {item}")
                 except Exception as e:
                     logger.error(f"Failed to import plugin {item}: {e}")

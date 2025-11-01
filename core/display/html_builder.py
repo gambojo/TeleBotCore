@@ -25,6 +25,14 @@ class HTMLBuilder:
         self.lines.append(f"<b>{emoji} {self._escape(text)}</b>")
         return self
 
+    def subtitle(self, text: str, emoji: str = "▪️") -> "HTMLBuilder":
+        '''
+        HTMLBuilder().subtitle("Информация").build()
+        ▪️ <b>Информация</b>
+        '''
+        self.lines.append(f"{emoji} <b>{self._escape(text)}</b>")
+        return self
+
     def field(self, label: str, value: str | None, emoji: str = "▪️") -> "HTMLBuilder":
         '''
         HTMLBuilder().field("Имя", "Гамид").build()
@@ -94,5 +102,4 @@ class HTMLBuilder:
         Возвращает: str - HTML-текст для отправки в Telegram
         Пример: html_text = builder.title("Заголовок").field("Поле", "значение").build()
         """
-
         return "\n".join(self.lines)

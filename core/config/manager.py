@@ -16,6 +16,15 @@ class ConfigManager:
     def __init__(self):
         self.settings = CoreSettings()
         self.plugin_configs: dict[str, BaseSettings] = {}
+        self.plugin_manager = None
+
+    def set_plugin_manager(self, plugin_manager):
+        """Устанавливает PluginManager для доступа плагинами"""
+        self.plugin_manager = plugin_manager
+
+    def get_plugin_manager(self):
+        """Возвращает PluginManager"""
+        return self.plugin_manager
 
     def load_plugin_config(self, name: str, config_class: Type[T]) -> T:
         """

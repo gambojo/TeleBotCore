@@ -61,7 +61,3 @@ class VersionManager:
     def get_info(self) -> Dict[str, Any]:
         """Возвращает полную информацию о версии"""
         return self._metadata.copy()
-
-
-# Глобальный экземпляр
-version_manager = VersionManager()
