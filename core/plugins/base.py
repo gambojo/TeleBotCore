@@ -5,7 +5,7 @@ from aiogram import Router
 from aiogram.types import InlineKeyboardButton
 from pydantic_settings import BaseSettings
 from core.config import ConfigManager
-from databases import DatabaseManager
+from modules.databases import DatabaseManager
 
 class PluginBase(ABC):
     """

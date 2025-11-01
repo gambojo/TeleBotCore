@@ -7,7 +7,7 @@ from core.plugins import PluginManager, plugin_registry
 from core.middlewares import UserInitMiddleware
 from core.handlers.start import StartHandler
 from core.display import ImageManager
-from databases import DatabaseManager
+from modules.databases import DatabaseManager
 from core.logging import LoggingManager
 from core.auth import AuthManager
 import plugins as loaded_plugins

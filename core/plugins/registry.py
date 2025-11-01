@@ -1,6 +1,6 @@
 from typing import Callable, Dict
 from core.config import ConfigManager
-from databases import DatabaseManager
+from modules.databases import DatabaseManager
 from core.plugins.base import PluginBase
 from core.logging import LoggingManager
 import inspect

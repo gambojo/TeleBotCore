@@ -1,6 +1,6 @@
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import Message, TelegramObject
-from databases import UserManager
+from modules.databases import UserManager
 from core.logging import LoggingManager
 
 

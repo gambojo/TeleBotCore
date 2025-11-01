@@ -1,6 +1,6 @@
 import importlib
 from core.config import ConfigManager
-from databases import DatabaseManager
+from modules.databases import DatabaseManager
 from core.plugins.global_registry import plugin_registry
 from core.plugins.base import PluginBase
 from core.logging import LoggingManager

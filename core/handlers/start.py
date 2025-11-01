@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart
 from core.keyboards import MainMenuKeyboard
 from core.display import ImageManager, HTMLBuilder
-from databases import UserManager
+from modules.databases import UserManager
 from core.config import ConfigManager
 from core.logging import LoggingManager
 
