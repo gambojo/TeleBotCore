@@ -14,7 +14,7 @@ class ImageManager:
     def __init__(self, use_local: bool = True):
         self.use_local = use_local
         self.cache: dict[str, FSInputFile] = {}
-        self.local = {"banner": "core/display/images/telefather.jpg"}
+        self.local = {"banner": "core/display/images/telebot.jpg"}
         self.cdn = {"banner": "https://cdn.example.com/banner.jpg"}
         self.logger = LoggingManager().get_logger(__name__)
 

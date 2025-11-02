@@ -90,15 +90,11 @@ class StartHandler:
             builder.title("👤 Профиль:")
             builder.field("Имя", user.first_name or "Не указано")
             builder.field("Id", str(user.telegram_id))
-            builder.field("Роль", display_role)  # ← Используем роль из RBAC
+            builder.field("Роль", display_role)
 
-            # Добавляем кнопки плагинов
             integrated_buttons = self._get_integrated_buttons()
             if integrated_buttons:
                 builder.blank()
-                builder.title("🧩 Плагины:")
-                # Можно добавить информацию о плагинах если нужно
-                # Например: builder.field("Доступно плагинов", str(len(self.plugins)))
 
             text = builder.build()
             keyboard = MainMenuKeyboard(
